@@ -2,25 +2,28 @@ import csv
 import sqlite3
 import re
 
-# commands = {
-#     r'add [0-9] [0-9][0-9]*':add,
-#     r'rm [0-9] [0-9][0-9]*':rm,
-#     r'tex [0-9]':tex,
-#     r'disp [0-9]':disp,
-#     r'update':update,
-# }
+
+
+std_order = {
+    'id':lambda n:int(n),
+    'pset':lambda n:int(n),
+    'author':lambda s:s,
+    'subject':lambda s:s,
+    'format':lambda s:s,
+    'content':lambda s:s,
+    'choices':lambda s:s,
+    'answer':lambda s:s}
 
 __qformat__ = '''
-\\begin{center}
+\\begin{{center}}
     \\textbf{{{TYPE}}} \\\\ By: {author}
-\\end{center}
+\\end{{center}}
 {num}) {SUBJECT} \\textit{{{form}}} {question}
 \\\\{choices}
-\\\\ANSWER: {answer}
+\\\\ANSWER: {answer}\\\\\\\\
 '''
 
-__choiceformat__ = '''
-W) {W}
+__choiceformat__ = '''W) {W}
 \\\\X) {X}
 \\\\Y) {Y}
 \\\\Z) {Z}
@@ -47,7 +50,7 @@ def insert(pid):
         tcontent = data[thead + 1]
         tchoices = '///'.join(data[thead+2:thead+6])
         letter = data[thead + 6]
-        content = data[thead + ord(data[thead + 6]) - ord('V')]
+        content = data[thead + ord(data[thead + 6]) - ord('U')]
         tanswer = f'{letter}) {content}'
     elif tform == 'Short-answer':
         tcontent = data[thead + 7]
@@ -59,8 +62,9 @@ def insert(pid):
         bcontent = data[bhead + 1]
         bchoices = '///'.join(data[bhead+2:bhead+6])
         letter = data[bhead + 6]
-        content = data[bhead + ord(data[bhead + 6]) - ord('V')]
+        content = data[bhead + ord(data[bhead + 6]) - ord('U')]
         banswer = f'{letter}) {content}'
+        
     elif bform == 'Short-answer':
         bcontent = data[bhead + 7]
         bchoices = ''
@@ -70,31 +74,98 @@ def insert(pid):
     c.execute('insert into qn_tossup values (?,?,?,?,?,?,?,?);', (qnum, 0, author, subject, tform, tcontent, tchoices, tanswer))
     c.execute('insert into qn_bonus values (?,?,?,?,?,?,?,?);', (qnum, 0, author, subject, bform, bcontent, bchoices, banswer))
     c.commit()
-    c.close()
+    
 
-def update():
+def update(argv):
     reader = csv.reader(open(__qn__))
     data = [item for item in reader][1:]
-    while (count() < len(data))
+    while (count() < len(data)):
         insert(count())
-
-# def cmd(arg: str):
-#     for pattern, func in commands:
-#         if re.search(pattern, arg):
-
         
-# def add(set, pid)
-#     return
+def add(argv):
+    pset = int(argv[0])
+    pid = int(argv[1])
+    c.execute('update qn_tossup set pset=? where id=?;', (pset, pid))
+    c.execute('update qn_bonus set pset=? where id=?;', (pset, pid))
 
-# def tex(pid):
-#     return
+def tex(argv):
+    pid = int(argv[0])
+    items = std_order.items()
+    cols = ', '.join([item[0] for item in items])
+    
+    reducts = [item[1] for item in items]
 
-def disp(pid):
-    return
+    def select(table):
+        query = c.execute('select %s from %s where id=?' % (cols, table), (pid,))
+        result = [item for item in query]
+        if result:
+            result = list(result[0])
+        else:
+            raise Exception('question dne')
+        for i, value in enumerate(result):
+            result[i] = reducts[i](value)
+        return dict(zip([item[0] for item in items], result))
+    
+    def onetex(dict, qtype):
+        if dict['choices']:
+            dict['choices'] = dict['choices'].split('///')
+            ch = dict['choices']
+            dict['choices'] = __choiceformat__.format(W = ch[0], X = ch[1], Y = ch[2], Z = ch[3],)
+        return __qformat__.format(
+            TYPE = qtype,
+            author = dict['author'],
+            num = 'INPUT NUMBER HERE',
+            SUBJECT = dict['subject'].upper(),
+            form = dict['format'],
+            question = dict['content'],
+            choices = dict['choices'],
+            answer = dict['answer']
 
-# while True:
-#     arg = input('>')
-#     if arg == 'quit':
-#         break
-#     else:
-#         print(cmd(arg).span())
+        )
+    
+    try:
+        dict_tossup = select('qn_tossup')
+        dict_bonus = select('qn_bonus')
+        )
+        )
+    except sqlite3.Error as sqle:
+        
+        
+    except Exception as ex:
+        
+
+    
+
+
+def disp(argv):
+    )
+
+def rm(argv):
+    return 
+
+def clear(argv):
+    c.execute('delete from qn_tossup;')
+    c.execute('delete from qn_bonus;')
+
+commands = {
+    'add':add,
+    'rm':rm,
+    'tex':tex,
+    'disp':disp,
+    'update':update,
+    'cleardb':clear
+}
+
+def cmd(argv):
+    for pattern, func in commands.items():
+        if argv[0] == pattern:
+            func(argv[1:])
+
+
+while True:
+    arg = input('>')
+    if arg in ['quit', 'exit']:
+        break
+    else:
+        argv = arg.split(' ')
+        cmd(argv)
