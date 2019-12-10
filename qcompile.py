@@ -12,22 +12,31 @@ std_order = {
     'format':lambda s:s,
     'content':lambda s:s,
     'choices':lambda s:s,
-    'answer':lambda s:s}
+    'answer':lambda s:s
+}
 
-__qformat__ = '''
-\\begin{{center}}
+__qformat__ = '''\\begin{{center}}
     \\textbf{{{TYPE}}} \\\\ By: {author}
 \\end{{center}}
-{num}) {SUBJECT} \\textit{{{form}}} {question}
-\\\\{choices}
-\\\\ANSWER: {answer}\\\\\\\\
-'''
+{num}) {SUBJECT} \\textit{{{form}}} {question}{choices}
+\\\\\\\\ANSWER: {answer}
+\\\\'''
 
-__choiceformat__ = '''W) {W}
+__choiceformat__ = '''\\\\
+\\\\W) {W}
 \\\\X) {X}
 \\\\Y) {Y}
-\\\\Z) {Z}
+\\\\Z) {Z}'''
+
+__pairformat__ = '''
+\\begin{{minipage}}{{\\textwidth}}
+{tossup}
+{bonus}
+\\underline{{\\hspace{{6.5in}}}}
+\\\\
+\\end{{minipage}}
 '''
+
 __db__ = 'questions.db'
 __qn__ = 'questions.csv'
 c = sqlite3.connect(__db__)
@@ -126,19 +135,23 @@ def tex(argv):
     try:
         dict_tossup = select('qn_tossup')
         dict_bonus = select('qn_bonus')
+        return __pairformat__.format(
+            tossup = onetex(dict_tossup, 'TOSS-UP'),
+            bonus = onetex(dict_bonus, 'BONUS')
         )
-        )
-    except sqlite3.Error as sqle:
-        
-        
     except Exception as ex:
+        print(ex)
         
 
     
-
-
 def disp(argv):
-    )
+    print(tex(argv[0]))
+
+def write_all(argv):
+    with open('all.tex','w') as texfile:
+        for i in range(count()):
+            # print(tex([i]))
+            texfile.write(tex([i]))
 
 def rm(argv):
     return 
@@ -152,6 +165,7 @@ commands = {
     'rm':rm,
     'tex':tex,
     'disp':disp,
+    'write':write_all,
     'update':update,
     'cleardb':clear
 }
