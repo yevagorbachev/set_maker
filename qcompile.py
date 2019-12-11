@@ -15,6 +15,16 @@ std_order = {
     'answer':lambda s:s
 }
 
+subjects = [
+    'Mathematics',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'Earth and Space Science',
+    'Computer Science',
+    'General Science'
+]
+
 __qformat__ = '''\\begin{{center}}
     \\textbf{{{TYPE}}} \\\\ By: {author}
 \\end{{center}}
@@ -42,6 +52,7 @@ __qn__ = 'questions.csv'
 c = sqlite3.connect(__db__)
 
 count = lambda : [item for item in c.execute('select count(*) from qn_tossup;')][0][0]
+count_subject = lambda s : [item for item in c.execute('select count(*) from qn_tossup where subject=?;', s)][0][0]
 
 def insert(pid):
     qnum = count()
