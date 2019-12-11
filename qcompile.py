@@ -97,7 +97,7 @@ def add(argv):
     c.execute('update qn_tossup set pset=? where id=?;', (pset, pid))
     c.execute('update qn_bonus set pset=? where id=?;', (pset, pid))
 
-def tex(argv):
+def tex(argv, number=-1):
     pid = int(argv[0])
     items = std_order.items()
     cols = ', '.join([item[0] for item in items])
@@ -123,7 +123,7 @@ def tex(argv):
         return __qformat__.format(
             TYPE = qtype,
             author = dict['author'],
-            num = 'INPUT NUMBER HERE',
+            num = number,
             SUBJECT = dict['subject'].upper(),
             form = dict['format'],
             question = dict['content'],
@@ -151,7 +151,7 @@ def write_all(argv):
     with open('all.tex','w') as texfile:
         for i in range(count()):
             # print(tex([i]))
-            texfile.write(tex([i]))
+            texfile.write(tex([i], i + 1))
 
 def rm(argv):
     return 
