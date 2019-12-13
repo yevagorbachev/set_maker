@@ -51,6 +51,6 @@ class Set():
     \\date{{}}
     \\begin{{document}}
     \\maketitle
-    \\noindent
+    \\parindent0pt
     {content}
     \\end{{document}}'''.replace('    ','')
