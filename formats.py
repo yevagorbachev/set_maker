@@ -47,7 +47,7 @@ class Set():
     \\usepackage[letterpaper, portrait, margin=1in]{{geometry}}
     \\usepackage{{siunitx, amsmath, amssymb, setspace}}
     \\title{{{set}}}
-    \\author{{}}--
+    \\author{{}}
     \\date{{}}
     \\begin{{document}}
     \\maketitle

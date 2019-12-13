@@ -118,17 +118,16 @@ def tex(argv, number=-1):
         )
     except Exception as ex:
         print(ex)
-        
 
 def disp(argv):
     print(tex(argv[0]))
 
 def write(argv):
-
     def questions(condition):
         body = ''
         query = c.execute('select id from qn_tossup where %s;' % condition)
         results = [item[0] for item in query]
+        print('%d questions found' % len(results))
         for i in results:
             body += tex([i], i)
         return body
@@ -148,7 +147,7 @@ def write(argv):
     name = argv[2].strip('\"')
 
     
-    body = questions('%s=%s')
+    body = questions('%s=%s' % (category, condition))
     if body == '':
         print('No questions matching %s=%s were found' % (category, condition))
     else:
