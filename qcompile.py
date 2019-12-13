@@ -2,57 +2,21 @@ import csv
 import sqlite3
 import re
 
+from formats import Set
 
-
-std_order = {
-    'id':lambda n:int(n),
-    'pset':lambda n:int(n),
-    'author':lambda s:s,
-    'subject':lambda s:s,
-    'format':lambda s:s,
-    'content':lambda s:s,
-    'choices':lambda s:s,
-    'answer':lambda s:s
-}
-
-subjects = [
-    'Mathematics',
-    'Physics',
-    'Chemistry',
-    'Biology',
-    'Earth and Space Science',
-    'Computer Science',
-    'General Science'
+schema = [
+    '''CREATE TABLE qn_tossup 
+        (id integer primary key, pset integer, author text, subject text, format text, content text, choices text, answer text);''',
+    '''CREATE TABLE qn_bonus 
+        (id integer primary key, pset integer, author text, subject text, format text, content text, choices text, answer text);'''
 ]
-
-__qformat__ = '''\\begin{{center}}
-    \\textbf{{{TYPE}}} \\\\ By: {author}
-\\end{{center}}
-{num}) {SUBJECT} \\textit{{{form}}} {question}{choices}
-\\\\\\\\ANSWER: {answer}
-\\\\'''
-
-__choiceformat__ = '''\\\\
-\\\\W) {W}
-\\\\X) {X}
-\\\\Y) {Y}
-\\\\Z) {Z}'''
-
-__pairformat__ = '''
-\\begin{{minipage}}{{\\textwidth}}
-{tossup}
-{bonus}
-\\underline{{\\hspace{{6.5in}}}}
-\\\\
-\\end{{minipage}}
-'''
 
 __db__ = 'questions.db'
 __qn__ = 'questions.csv'
 c = sqlite3.connect(__db__)
 
 count = lambda : [item for item in c.execute('select count(*) from qn_tossup;')][0][0]
-count_subject = lambda s : [item for item in c.execute('select count(*) from qn_tossup where subject=?;', s)][0][0]
+count_subject = lambda s : [item for item in c.execute('select count(*) from qn_tossup where subject=?;', (s,))][0][0]
 
 def insert(pid):
     qnum = count()
@@ -97,8 +61,11 @@ def insert(pid):
     
 
 def update(argv):
+    clear([])
+    print('Reading from question file...')
     reader = csv.reader(open(__qn__))
     data = [item for item in reader][1:]
+    print('Inserting into database...')
     while (count() < len(data)):
         insert(count())
         
@@ -110,7 +77,7 @@ def add(argv):
 
 def tex(argv, number=-1):
     pid = int(argv[0])
-    items = std_order.items()
+    items = Set.std_order.items()
     cols = ', '.join([item[0] for item in items])
     
     reducts = [item[1] for item in items]
@@ -130,8 +97,8 @@ def tex(argv, number=-1):
         if dict['choices']:
             dict['choices'] = dict['choices'].split('///')
             ch = dict['choices']
-            dict['choices'] = __choiceformat__.format(W = ch[0], X = ch[1], Y = ch[2], Z = ch[3],)
-        return __qformat__.format(
+            dict['choices'] = Set.choiceformat.format(W = ch[0], X = ch[1], Y = ch[2], Z = ch[3],)
+        return Set.qformat.format(
             TYPE = qtype,
             author = dict['author'],
             num = number,
@@ -140,13 +107,12 @@ def tex(argv, number=-1):
             question = dict['content'],
             choices = dict['choices'],
             answer = dict['answer']
-
         )
     
     try:
         dict_tossup = select('qn_tossup')
         dict_bonus = select('qn_bonus')
-        return __pairformat__.format(
+        return Set.pairfomat.format(
             tossup = onetex(dict_tossup, 'TOSS-UP'),
             bonus = onetex(dict_bonus, 'BONUS')
         )
@@ -154,21 +120,48 @@ def tex(argv, number=-1):
         print(ex)
         
 
-    
 def disp(argv):
     print(tex(argv[0]))
 
-def write_all(argv):
-    with open('all.tex','w') as texfile:
-        for i in range(count()):
-            # print(tex([i]))
-            texfile.write(tex([i], i + 1))
+def write(argv):
 
+    def questions(condition):
+        body = ''
+        query = c.execute('select id from qn_tossup where %s;' % condition)
+        results = [item[0] for item in query]
+        for i in results:
+            body += tex([i], i)
+        return body
+
+    category = argv[0][2:]
+    if category == 'all':
+        for subject in Set.subjects:
+            print('%s: %d' % (subject, count_subject(subject)))
+        with open('all.tex','w') as texfile:
+            body = questions('1=1')
+            texfile.write(Set.setformat.format(
+                set = "All questions",
+                content = body
+            ))
+            return
+    condition = argv[1]
+    name = argv[2].strip('\"')
+
+    
+    body = questions('%s=%s')
+    if body == '':
+        print('No questions matching %s=%s were found' % (category, condition))
+    else:
+        with open('%s.tex' % name.replace(' ',''), 'w') as texfile:
+            texfile.write(Set.setformat.format(set=name, content=body).replace('    ', ''))
+        
 def rm(argv):
     return 
 
 def clear(argv):
+    print('Clearing tossup...')
     c.execute('delete from qn_tossup;')
+    print('Clearing bonus...')
     c.execute('delete from qn_bonus;')
 
 commands = {
@@ -176,9 +169,8 @@ commands = {
     'rm':rm,
     'tex':tex,
     'disp':disp,
-    'write':write_all,
+    'write':write,
     'update':update,
-    'cleardb':clear
 }
 
 def cmd(argv):
@@ -186,11 +178,17 @@ def cmd(argv):
         if argv[0] == pattern:
             func(argv[1:])
 
+def parse_cmd(command):
+    cmdr = re.compile('(\".*?\"|([a-z\-]*))')
+    match = [item[0] for item in re.findall(cmdr, command)]
+    argv = list(filter(lambda token: token != '', match))
+    
+    return argv
 
 while True:
     arg = input('>')
     if arg in ['quit', 'exit']:
         break
     else:
-        argv = arg.split(' ')
+        argv = parse_cmd(arg)
         cmd(argv)
