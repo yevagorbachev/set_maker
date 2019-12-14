@@ -20,7 +20,7 @@ class Set():
     ]
     # format for a single question
     qformat = '''\\begin{{center}}
-        \\textbf{{{TYPE}}} \\\\ By: {author}
+        \\textbf{{{TYPE}}}
     \\end{{center}}
     {num}) {SUBJECT} \\textit{{{form}}} {question}{choices}
     \\\\\\\\ANSWER: {answer}
@@ -42,7 +42,7 @@ class Set():
     '''
     # LaTeX file template
     setformat = '''
-    \\documentclass{{article}}
+    \\documentclass[11pt]{{article}}
     \\usepackage[utf8]{{inputenc}}
     \\usepackage[letterpaper, portrait, margin=1in]{{geometry}}
     \\usepackage{{siunitx, amsmath, amssymb, setspace}}

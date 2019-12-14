@@ -110,7 +110,7 @@ def tex(argv, number=-1):
             dict['choices'] = Set.choiceformat.format(W = ch[0], X = ch[1], Y = ch[2], Z = ch[3],)
         return Set.qformat.format(
             TYPE = qtype.upper(),
-            author = dict['author'],
+            # author = dict['author'],
             num = number,
             SUBJECT = dict['subject'].upper(),
             form = dict['format'],
