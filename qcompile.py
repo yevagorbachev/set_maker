@@ -55,8 +55,18 @@ def insert(pid):
         banswer = data[bhead + 8]
     
 
-    c.execute('insert into qn_tossup values (?,?,?,?,?,?,?,?);', (qnum, 0, author, subject, tform, tcontent, tchoices, tanswer))
-    c.execute('insert into qn_bonus values (?,?,?,?,?,?,?,?);', (qnum, 0, author, subject, bform, bcontent, bchoices, banswer))
+    c.execute('insert into qn_tossup values (?,?,?,?,?,?,?,?);', (
+        qnum, 0, author, subject, tform, 
+        tcontent, 
+        tchoices, 
+        tanswer)
+    )
+    c.execute('insert into qn_bonus values (?,?,?,?,?,?,?,?);', (
+        qnum, 0, author, subject, bform, 
+        bcontent, 
+        bchoices, 
+        banswer)
+    )
     c.commit()
     
 
@@ -64,7 +74,7 @@ def update(argv):
     clear([])
     print('Reading from question file...')
     reader = csv.reader(open(__qn__))
-    data = [item.replace('%','\%').replace('#','\#') for item in reader][1:]
+    data = [item for item in reader][1:]
     print('Inserting into database...')
     while count() < len(data):
         insert(count())
@@ -99,14 +109,14 @@ def tex(argv, number=-1):
             ch = dict['choices']
             dict['choices'] = Set.choiceformat.format(W = ch[0], X = ch[1], Y = ch[2], Z = ch[3],)
         return Set.qformat.format(
-            TYPE = qtype,
+            TYPE = qtype.upper(),
             author = dict['author'],
             num = number,
             SUBJECT = dict['subject'].upper(),
             form = dict['format'],
-            question = dict['content'],
-            choices = dict['choices'],
-            answer = dict['answer']
+            question = dict['content'].replace('%','\%').replace('#','\#'),
+            choices = dict['choices'].replace('%','\%').replace('#','\#'),
+            answer = dict['answer'].replace('%','\%').replace('#','\#')
         )
     
     try:
