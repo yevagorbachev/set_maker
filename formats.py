@@ -46,6 +46,8 @@ class Set():
     \\usepackage[utf8]{{inputenc}}
     \\usepackage[letterpaper, portrait, margin=1in]{{geometry}}
     \\usepackage{{siunitx, amsmath, amssymb, setspace}}
+    \\DeclareMathOperator{{\\sech}}{{sech}}
+    \\DeclareMathOperator{{\\csch}}{{csch}}
     \\title{{{set}}}
     \\author{{}}
     \\date{{}}

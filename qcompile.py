@@ -176,6 +176,7 @@ def clear(argv):
 def progress(argv):
     for subject in Set.subjects:
         print('%s: %d' % (subject, count_subject(subject)))
+    print('%d questions found' % count())
     
 commands = {
     'add':add,
