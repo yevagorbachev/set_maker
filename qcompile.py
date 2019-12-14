@@ -64,9 +64,9 @@ def update(argv):
     clear([])
     print('Reading from question file...')
     reader = csv.reader(open(__qn__))
-    data = [item for item in reader][1:]
+    data = [item.replace('%','\%').replace('#','\#') for item in reader][1:]
     print('Inserting into database...')
-    while (count() < len(data)):
+    while count() < len(data):
         insert(count())
         
 def add(argv):
@@ -163,6 +163,10 @@ def clear(argv):
     print('Clearing bonus...')
     c.execute('delete from qn_bonus;')
 
+def progress(argv):
+    for subject in Set.subjects:
+        print('%s: %d' % (subject, count_subject(subject)))
+    
 commands = {
     'add':add,
     'rm':rm,
@@ -170,6 +174,7 @@ commands = {
     'disp':disp,
     'write':write,
     'update':update,
+    'progress':progress
 }
 
 def cmd(argv):
