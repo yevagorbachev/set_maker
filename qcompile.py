@@ -78,6 +78,7 @@ def update(argv):
     print('Inserting into database...')
     while count() < len(data):
         insert(count())
+    progress([])
         
 def add(argv):
     pset = int(argv[0])
