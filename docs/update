@@ -1,0 +1,5 @@
+update [filename]
+
+Updates 'questions.db' with the contents of 'filename'.
+
+END HELP

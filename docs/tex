@@ -1,0 +1,9 @@
+tex [[--all] [--column=value]] [filename]
+
+generates LaTeX source and stores in [filename]
+
+--all:
+generates source using all questions in 'questions.db'
+--column=value
+adds a 'where' clause to the query with 'column=value'
+strings should be encapsulated with quotes

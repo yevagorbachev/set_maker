@@ -1,0 +1,14 @@
+add [-lf] [[[round number] [space-separated number list]] [filename]]
+
+-l:
+sets the 'round' property (in 'questions.db') for questions with id in [space-separated number list] to [round number]
+-f:
+sets the 'round' property (in 'questions.db') using a file specified by [filename] formatted as:
+
+ROUND: [number]
+PROBLEMS: [space-separated number list]
+ROUND: [number]
+PROBLEMS: [space-separated number list]
+...
+
+END HELP
