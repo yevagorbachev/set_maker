@@ -48,17 +48,6 @@
     \\\\ #5
 }
 
-\def \printpair {
-    \begin{minipage}{\textwidth}
-        \begin{center}{\bf TOSS-UP}\end{center}
-        \@nextta \\
-        \begin{center}{\bf BONUS}\end{center}
-        \@nextbn \\
-        \underline{\hspace{4in}}
-    \end{minipage}
-    \stepcounter{qnumber}
-}
-
 \newenvironment{pair}{
     \begin{minipage}{\textwidth}
     % REQUIRED:
