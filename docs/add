@@ -1,5 +1,7 @@
-add [-lf] [[[round number] [space-separated number list]] [filename]]
+add [-lf] [[[round number] [space-separated number list]] [filename]] [--auto] [number]
 
+--auto:
+sets the 'round' property (in 'questions.db') for all questions using difficulty, for [number] rounds.
 -l:
 sets the 'round' property (in 'questions.db') for questions with id in [space-separated number list] to [round number]
 -f:
