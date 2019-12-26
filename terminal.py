@@ -7,20 +7,12 @@ import re
 def parse(arg: str):
     result = []
     quote = False
+    last = 0
     for index, char in enumerate(arg):
         if char == '\"':
             quote = not quote
         if (char == ' ') and (not quote):
-            result.append(arg[:index])
-            arg = arg[index + 1:]
+            result.append(arg[last:index])
+            last = index + 1
+    result.append(arg[last:])
     return result
-
-tests = [
-    'tex --all all.tex',
-    'tex --all \"all with space.tex\"',
-    'tex --col=oneword oneword.tex'
-    'tex --col=\"not oneword\" \"not oneword.tex\"'
-]
-
-for test in tests:
-    print(parse(test))
