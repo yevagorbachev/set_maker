@@ -7,3 +7,5 @@ generates source using all questions in 'questions.db'
 --column=value
 adds a 'where' clause to the query with 'column=value'
 strings should be encapsulated with quotes
+
+END HELP

@@ -6,6 +6,7 @@
 \LoadClass[11pt,letterpaper]{article}
 
 \usepackage[letterpaper, portrait, margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
 \usepackage[overload]{textcase}
 \usepackage{mathptmx}
 \nofiles
