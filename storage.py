@@ -54,17 +54,19 @@ class questiondb():
 		'difficulty':lambda s:int(s)
 	}
 
-	schema = '''CREATE TABLE IF NOT EXISTS questions (qid integer primary key, round integer,
-	subject text,
+	schema = '''create table questions (qid integer primary key, 
+	round integer, subject text,
 	tuformat text, tucontent text, tuanswer text,
 	bnformat text, bncontent text, bnanswer text,
-	author text, diff integer);'''
+	author text, difficulty integer);'''
 
 	def __init__(self, file: str):
 		"""Initializes database with given filename and schema specified in class constant"""
 		self.dbfile = file
 		db = sqlite3.connect(self.dbfile)
-		db.execute(schema)
+		try:
+			db.execute('drop table questions;')
+		db.execute(self.schema)
 		db.commit()
 
 	def write(self, question: dict):
@@ -91,4 +93,6 @@ class questiondb():
 
 
 csvf = questioncsv('questions.csv')
-print(csvf.read())
+questions = csvf.read()
+db = questiondb('questions.db')
+db.write(questions[0])
