@@ -5,32 +5,37 @@ class questioncsv():
 	qfile: str
 
 	def __init__(self, file):
-		qfile = file
+		self.qfile = file
 
-	def read(self, qid: int):
+	def read(self):
 		with open(self.qfile, 'r') as csvfile:
 			reader = csv.reader(csvfile)
-			qlist = reader[qid]
-		qdict = {
-			'qid':qid,
-			'round':0,
-			'subject':qlist[3],
-			'tuformat':qlist[4],
-			'tucontent':qlist[5],
-			'bnformat':qlist[12],
-			'bncontent':qlist[13],
-			'author':qlist[2],
-			'difficulty':int(qlist[20])
-		}
-		if qdict['tuformat'] == 'Multiple Choice':
-			qdict['tucontent'] = '///'.join(qlist[7:12])
-		else:
-			qdict['tucontent'] = qlist[6]
+			qlist = [item for item in reader][1:]
+		for index, question in enumerate(qlist):
+			qdict = {
+				'qid':index + 1,
+				'round':0,
+				'subject':question[3],
+				'tuformat':question[4],
+				'tucontent':question[5],
+				'bnformat':question[12],
+				'bncontent':question[13],
+				'author':question[2],
+				'difficulty':int(question[20])
+			}
+			if qdict['tuformat'] == 'Multiple Choice':
+				qdict['tuanswer'] = '///'.join(question[7:12])
+				# Stores MC choices as Choice W///Choice X///Choice Y///Choice Z///Correct choice letter
+				# permits the use of the same "tuanswer" column for MC and SA questions
+			else:
+				qdict['tuanswer'] = question[6]
 
-		if qdict['bnformat'] == 'Multiple Choice':
-			qdict['bncontent'] = '///'.join(qlist[15:20])
-		else:
-			qdict['bncontent'] = qlist[14]
+			if qdict['bnformat'] == 'Multiple Choice':
+				qdict['bnanswer'] = '///'.join(question[15:20])
+			else:
+				qdict['bnanswer'] = question[14]
+			qlist[index] = qdict.copy()
+		return qlist
 
 class questiondb():
 	dbfile:str
@@ -56,21 +61,34 @@ class questiondb():
 	author text, diff integer);'''
 
 	def __init__(self, file: str):
+		"""Initializes database with given filename and schema specified in class constant"""
 		self.dbfile = file
 		db = sqlite3.connect(self.dbfile)
 		db.execute(schema)
 		db.commit()
-		db.close()
 
-	def store(self, question: dict):
-		return
+	def write(self, question: dict):
+		"""Inserts an item into a database using a dictionary, with keys as columns"""
+		keys = question.keys()
+		values = question.values()
+		cmd = 'insert into questions (%s) values (%s);' % (','.join(keys), ','.join(['?' for item in values]))
+
+		db = sqlite3.connect(self.dbfile)
+		try:
+			db.execute(cmd, tuple(values))
+		except sqlite3.Error as dberr:
+			print('Insertion failed: %s' % dberr)
+		db.commit()
 
 	def read(self, columns, condition: str =''):
+		"""Selects specified columns from a database, under optional conditions"""
 		return
 
 	def count(self, condition: str =''):
+		"""Returns a count of the number of questions satisfying the optional conditions"""
 		db = sqlite3.connect(self.dbfile)
 		return read('count(*)')[0][0]
 
 
-
+csvf = questioncsv('questions.csv')
+print(csvf.read())
