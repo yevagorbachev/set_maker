@@ -14,7 +14,7 @@ class scibowlset():
     \\newcounter{{qnumber}}\\stepcounter{{qnumber}}
     {content}
     \\end{{document}}'''
-    pair = '''\\begin{{pair}} % {subject}
+    pair = '''\\begin{{pair}}
         \\ta{{
             {tossup}
         }}

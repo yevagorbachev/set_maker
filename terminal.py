@@ -3,6 +3,7 @@
 # tex [[--all] [--column=value]] [filename]
 
 import re
+from cmds import *
 
 def parse(arg: str):
     result = []
@@ -16,3 +17,19 @@ def parse(arg: str):
             last = index + 1
     result.append(arg[last:])
     return result
+
+cmds = {
+
+}
+
+while True:
+    cmd = input()
+    if cmd == 'exit':
+        break
+    argv = parse(cmd)
+    try:
+        cmds[argv[0]](argv[1:])
+    except KeyError as kerr:
+        print('Command \"%s\" not found' % argv[0])
+    except InvalidArgument as argerr:
+        print('Invalid argument for \"%s\": %s' % (argv[0], argerr))
