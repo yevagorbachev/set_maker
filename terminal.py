@@ -3,7 +3,8 @@
 # tex [[--all] [--column=value]] [filename]
 
 import re
-from cmds import *
+from modules.cmds import *
+from modules.storage import *
 
 def parse(arg: str):
     result = []
@@ -21,6 +22,9 @@ def parse(arg: str):
 cmds = {
 
 }
+
+csv = questioncsv('questions.csv')
+db = questiondb('questions.db')
 
 while True:
     cmd = input()
